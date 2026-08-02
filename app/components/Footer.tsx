@@ -6,7 +6,7 @@ export default function Footer() {
           🔓 想不限次数生成？
         </p>
         <p className="mt-1.5 text-sm text-xhs-plum">
-          加微信 <span className="font-semibold text-xhs-red">xxxxxx</span>{" "}
+          加微信 <span className="font-semibold text-xhs-red">aaa1063150363</span>{" "}
           咨询无限次生成 / 批量出稿方案，备注「文案生成器」优先通过～
         </p>
       </div>
