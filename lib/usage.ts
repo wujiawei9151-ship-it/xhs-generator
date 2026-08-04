@@ -1,6 +1,7 @@
 const FREE_DAILY_LIMIT = 1;
-const AUTH_CODE = "VIP30"; // 授权码
-const AUTH_DAYS = 30; // 授权天数
+const VIP_DAILY_LIMIT = 10;
+const AUTH_CODE = "VIP30";
+const AUTH_DAYS = 30;
 
 export function getUsage() {
   if (typeof window === "undefined") return { count: 0, isVip: false, expireDate: null };
@@ -30,7 +31,17 @@ export function getUsage() {
 
 export function canGenerate() {
   const usage = getUsage();
-  if (usage.isVip) return true;
+  if (usage.isVip) {
+    const today = new Date().toDateString();
+    const data = localStorage.getItem("vip_usage_data");
+    if (data) {
+      const parsed = JSON.parse(data);
+      if (parsed.date === today) {
+        return parsed.count < VIP_DAILY_LIMIT;
+      }
+    }
+    return true;
+  }
   return usage.count < FREE_DAILY_LIMIT;
 }
 
@@ -38,20 +49,29 @@ export function increaseUsage() {
   if (typeof window === "undefined") return;
   
   const usage = getUsage();
-  if (usage.isVip) return;
-
   const today = new Date().toDateString();
-  const data = localStorage.getItem("usage_data");
-  
-  let count = 1;
-  if (data) {
-    const parsed = JSON.parse(data);
-    if (parsed.date === today) {
-      count = parsed.count + 1;
+
+  if (usage.isVip) {
+    const data = localStorage.getItem("vip_usage_data");
+    let count = 1;
+    if (data) {
+      const parsed = JSON.parse(data);
+      if (parsed.date === today) {
+        count = parsed.count + 1;
+      }
     }
+    localStorage.setItem("vip_usage_data", JSON.stringify({ date: today, count }));
+  } else {
+    const data = localStorage.getItem("usage_data");
+    let count = 1;
+    if (data) {
+      const parsed = JSON.parse(data);
+      if (parsed.date === today) {
+        count = parsed.count + 1;
+      }
+    }
+    localStorage.setItem("usage_data", JSON.stringify({ date: today, count }));
   }
-  
-  localStorage.setItem("usage_data", JSON.stringify({ date: today, count }));
 }
 
 export function activateVip(code: string) {
@@ -65,6 +85,16 @@ export function activateVip(code: string) {
 
 export function getRemaining() {
   const usage = getUsage();
-  if (usage.isVip) return "无限次";
+  if (usage.isVip) {
+    const today = new Date().toDateString();
+    const data = localStorage.getItem("vip_usage_data");
+    if (data) {
+      const parsed = JSON.parse(data);
+      if (parsed.date === today) {
+        return Math.max(0, VIP_DAILY_LIMIT - parsed.count);
+      }
+    }
+    return VIP_DAILY_LIMIT;
+  }
   return Math.max(0, FREE_DAILY_LIMIT - usage.count);
 }
