@@ -56,10 +56,7 @@ export default function GeneratorForm() {
       });
 
       const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.error || "生成失败");
-      }
+      if (!res.ok) throw new Error(data.error || "生成失败");
 
       increaseUsage();
       setResult(data);
@@ -72,28 +69,22 @@ export default function GeneratorForm() {
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-lg p-6 max-w-2xl mx-auto">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-bold">填写笔记信息</h2>
-        <span className="text-sm bg-pink-100 text-pink-600 px-3 py-1 rounded-full">
-          {isVip ? "VIP无限次" : `今日剩余 ${remaining} 次`}
-        </span>
-      </div>
-
+    <div className="max-w-2xl mx-auto">
+      {/* 授权码区域 */}
       {!isVip && (
-        <div className="mb-6 p-4 bg-gray-50 rounded-xl">
-          <p className="text-sm text-gray-600 mb-2">输入授权码可解锁30天无限次</p >
-          <div className="flex gap-2">
+        <div className="mb-6 p-4 bg-pink-50 border border-pink-100 rounded-2xl">
+          <p className="text-sm text-pink-700 mb-3 font-medium">输入授权码可解锁30天无限次生成</p >
+          <div className="flex gap-3">
             <input
               type="text"
               value={authCode}
               onChange={(e) => setAuthCode(e.target.value)}
-              placeholder="请输入授权码"
-              className="flex-1 border rounded-lg px-3 py-2 text-sm"
+              placeholder="请输入授权码 VIP30"
+              className="flex-1 border border-pink-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300"
             />
             <button
               onClick={handleActivate}
-              className="bg-pink-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-pink-600"
+              className="bg-pink-500 hover:bg-pink-600 text-white px-6 py-2.5 rounded-xl text-sm font-medium transition"
             >
               激活
             </button>
@@ -106,90 +97,108 @@ export default function GeneratorForm() {
         </div>
       )}
 
-      <div className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium mb-1">产品名称 / 主题 *</label>
-          <input
-            type="text"
-            value={product}
-            onChange={(e) => setProduct(e.target.value)}
-            placeholder="例如：小众氨基酸洗发水"
-            className="w-full border rounded-lg px-3 py-2"
-          />
+      {/* 主表单卡片 */}
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-xl font-bold text-gray-800">填写笔记信息</h2>
+          <span className="text-sm bg-pink-100 text-pink-600 px-3 py-1 rounded-full font-medium">
+            {isVip ? "VIP无限次" : `今日剩余 ${remaining} 次`}
+          </span>
         </div>
 
-        <div>
-          <label className="block text-sm font-medium mb-1">核心卖点</label>
-          <textarea
-            value={points}
-            onChange={(e) => setPoints(e.target.value)}
-            placeholder="每行一个卖点"
-            rows={3}
-            className="w-full border rounded-lg px-3 py-2"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium mb-1">目标人群（可选）</label>
-          <input
-            type="text"
-            value={audience}
-            onChange={(e) => setAudience(e.target.value)}
-            placeholder="例如：油头女生、学生党"
-            className="w-full border rounded-lg px-3 py-2"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium mb-1">选择风格</label>
-          <div className="flex flex-wrap gap-2">
-            {["种草", "干货", "测评", "情绪", "避雷"].map((s) => (
-              <button
-                key={s}
-                onClick={() => setStyle(s)}
-                className={`px-4 py-1.5 rounded-full text-sm ${
-                  style === s ? "bg-pink-500 text-white" : "bg-gray-100 text-gray-700"
-                }`}
-              >
-                {s}
-              </button>
-            ))}
+        <div className="space-y-5">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">产品名称 / 主题 *</label>
+            <input
+              type="text"
+              value={product}
+              onChange={(e) => setProduct(e.target.value)}
+              placeholder="例如：小众氨基酸洗发水 / 平价通勤包"
+              className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-pink-300"
+            />
           </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">核心卖点 <span className="text-gray-400 font-normal">每行一个卖点，写得越具体生成效果越好</span></label>
+            <textarea
+              value={points}
+              onChange={(e) => setPoints(e.target.value)}
+              placeholder={`例如：\n控油蓬松一整天\n无硅油不刺激头皮\n99元入手平替大牌`}
+              rows={4}
+              className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-pink-300"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">目标人群 <span className="text-gray-400 font-normal">可选，越精准文案越戳心</span></label>
+            <input
+              type="text"
+              value={audience}
+              onChange={(e) => setAudience(e.target.value)}
+              placeholder="例如：油头星人 / 通勤上班族 / 学生党"
+              className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-pink-300"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">选择风格</label>
+            <div className="flex flex-wrap gap-2">
+              {["种草", "干货", "测评", "情绪", "避雷"].map((s) => (
+                <button
+                  key={s}
+                  onClick={() => setStyle(s)}
+                  className={`px-5 py-2 rounded-full text-sm font-medium transition ${
+                    style === s
+                      ? "bg-pink-500 text-white shadow-sm"
+                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  }`}
+                >
+                  {s}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {error && <p className="text-red-500 text-sm bg-red-50 px-4 py-2 rounded-lg">{error}</p >}
+
+          <button
+            onClick={handleGenerate}
+            disabled={loading}
+            className="w-full bg-pink-500 hover:bg-pink-600 text-white py-3.5 rounded-xl font-medium text-base transition disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+          >
+            {loading ? "生成中，请稍候..." : "一键生成爆款文案"}
+          </button>
         </div>
-
-        {error && <p className="text-red-500 text-sm">{error}</p >}
-
-        <button
-          onClick={handleGenerate}
-          disabled={loading}
-          className="w-full bg-pink-500 text-white py-3 rounded-xl font-medium hover:bg-pink-600 disabled:opacity-50"
-        >
-          {loading ? "生成中..." : "一键生成爆款文案"}
-        </button>
       </div>
 
+      {/* 生成结果 */}
       {result && (
-        <div className="mt-8 border-t pt-6">
-          <h3 className="font-bold text-lg mb-3">生成结果</h3>
-          <div className="space-y-3">
-            {result.titles?.map((title: string, i: number) => (
-              <div key={i} className="bg-gray-50 p-3 rounded-lg">
-                {i + 1}. {title}
-              </div>
-            ))}
-            <div className="bg-pink-50 p-4 rounded-lg whitespace-pre-wrap">
-              {result.content}
-            </div>
+        <div className="mt-8 bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8">
+          <div className="flex justify-between items-center mb-5">
+            <h3 className="text-lg font-bold text-gray-800">✨ 生成结果</h3>
             <button
               onClick={() => {
                 const text = (result.titles?.[0] || "") + "\n\n" + result.content;
                 navigator.clipboard.writeText(text);
                 alert("已复制全部内容");
               }}
-              className="bg-pink-500 text-white px-4 py-2 rounded-lg text-sm"
+              className="bg-pink-500 hover:bg-pink-600 text-white px-4 py-2 rounded-lg text-sm font-medium"
             >
               一键复制全部
             </button>
+          </div>
+
+          <div className="space-y-3 mb-5">
+            <p className="text-sm text-gray-500">吸睛标题（点击切换预览）</p >
+            {result.titles?.map((title: string, i: number) => (
+              <div key={i} className="bg-gray-50 hover:bg-pink-50 p-3 rounded-xl cursor-pointer transition">
+                {i + 1}. {title}
+              </div>
+            ))}
+          </div>
+
+          <div className="bg-pink-50 p-5 rounded-xl whitespace-pre-wrap leading-relaxed text-gray-800">
+            {result.content}
           </div>
         </div>
       )}
