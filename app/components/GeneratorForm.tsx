@@ -34,13 +34,13 @@ export default function GeneratorForm() {
   };
 
   const handleGenerate = async () => {
-    if (!canGenerate()) {
-      setError(isVip ? "今日VIP次数已用完" : "今日免费次数已用完，请输入授权码解锁");
+    if (!product || !product.trim()) {
+      setError("请填写产品名称或主题");
       return;
     }
 
-    if (!product.trim()) {
-      setError("请填写产品名称");
+    if (!canGenerate()) {
+      setError(isVip ? "今日VIP次数已用完" : "今日免费次数已用完，请输入授权码解锁");
       return;
     }
 
@@ -52,7 +52,12 @@ export default function GeneratorForm() {
       const res = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ product, points, audience, style }),
+        body: JSON.stringify({ 
+          product: product.trim(), 
+          points, 
+          audience, 
+          style 
+        }),
       });
 
       const data = await res.json();
@@ -70,6 +75,7 @@ export default function GeneratorForm() {
 
   return (
     <div className="max-w-2xl mx-auto">
+      {/* 授权码区域 - 只有非VIP才显示 */}
       {!isVip && (
         <div className="mb-6 p-4 bg-pink-50 border border-pink-100 rounded-2xl">
           <p className="text-sm text-pink-700 mb-3 font-medium">输入授权码可解锁30天每日10次生成</p >
@@ -123,7 +129,7 @@ export default function GeneratorForm() {
             <textarea
               value={points}
               onChange={(e) => setPoints(e.target.value)}
-              placeholder="例如：&#10;控油蓬松一整天&#10;无硅油不刺激头皮&#10;99元入手平替大牌"
+              placeholder="例如：控油蓬松一整天"
               rows={4}
               className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-pink-300"
             />
