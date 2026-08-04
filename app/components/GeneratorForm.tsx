@@ -11,7 +11,7 @@ export default function GeneratorForm() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<any>(null);
   const [error, setError] = useState("");
-  const [remaining, setRemaining] = useState("1");
+  const [remaining, setRemaining] = useState<string | number>("1");
   const [isVip, setIsVip] = useState(false);
   const [authCode, setAuthCode] = useState("");
   const [authMessage, setAuthMessage] = useState("");
