@@ -11,7 +11,7 @@ export default function GeneratorForm() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<any>(null);
   const [error, setError] = useState("");
-  const [remaining, setRemaining] = useState<string | number>("1");
+  const [remaining, setRemaining] = useState<string | number>(1);
   const [isVip, setIsVip] = useState(false);
   const [authCode, setAuthCode] = useState("");
   const [authMessage, setAuthMessage] = useState("");
@@ -24,9 +24,9 @@ export default function GeneratorForm() {
 
   const handleActivate = () => {
     if (activateVip(authCode)) {
-      setAuthMessage("授权成功！已开通30天无限次");
+      setAuthMessage("授权成功！已开通30天每日10次");
       setIsVip(true);
-      setRemaining("无限次");
+      setRemaining(getRemaining());
       setAuthCode("");
     } else {
       setAuthMessage("授权码错误，请检查后重试");
@@ -35,7 +35,7 @@ export default function GeneratorForm() {
 
   const handleGenerate = async () => {
     if (!canGenerate()) {
-      setError("今日免费次数已用完，请输入授权码解锁或明天再来");
+      setError(isVip ? "今日VIP次数已用完" : "今日免费次数已用完，请输入授权码解锁");
       return;
     }
 
@@ -70,16 +70,15 @@ export default function GeneratorForm() {
 
   return (
     <div className="max-w-2xl mx-auto">
-      {/* 授权码区域 */}
       {!isVip && (
         <div className="mb-6 p-4 bg-pink-50 border border-pink-100 rounded-2xl">
-          <p className="text-sm text-pink-700 mb-3 font-medium">输入授权码可解锁30天无限次生成</p >
+          <p className="text-sm text-pink-700 mb-3 font-medium">输入授权码可解锁30天每日10次生成</p >
           <div className="flex gap-3">
             <input
               type="text"
               value={authCode}
               onChange={(e) => setAuthCode(e.target.value)}
-              placeholder="请输入授权码 VIP30"
+              placeholder="请输入授权码"
               className="flex-1 border border-pink-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300"
             />
             <button
@@ -97,12 +96,11 @@ export default function GeneratorForm() {
         </div>
       )}
 
-      {/* 主表单卡片 */}
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-bold text-gray-800">填写笔记信息</h2>
           <span className="text-sm bg-pink-100 text-pink-600 px-3 py-1 rounded-full font-medium">
-            {isVip ? "VIP无限次" : `今日剩余 ${remaining} 次`}
+            {isVip ? `VIP剩余 ${remaining} 次` : `今日剩余 ${remaining} 次`}
           </span>
         </div>
 
@@ -119,18 +117,22 @@ export default function GeneratorForm() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">核心卖点 <span className="text-gray-400 font-normal">每行一个卖点，写得越具体生成效果越好</span></label>
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">
+              核心卖点 <span className="text-gray-400 font-normal">每行一个卖点，写得越具体生成效果越好</span>
+            </label>
             <textarea
               value={points}
               onChange={(e) => setPoints(e.target.value)}
-              placeholder={`例如：\n控油蓬松一整天\n无硅油不刺激头皮\n99元入手平替大牌`}
+              placeholder="例如：&#10;控油蓬松一整天&#10;无硅油不刺激头皮&#10;99元入手平替大牌"
               rows={4}
               className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-pink-300"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">目标人群 <span className="text-gray-400 font-normal">可选，越精准文案越戳心</span></label>
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">
+              目标人群 <span className="text-gray-400 font-normal">可选，越精准文案越戳心</span>
+            </label>
             <input
               type="text"
               value={audience}
@@ -171,7 +173,6 @@ export default function GeneratorForm() {
         </div>
       </div>
 
-      {/* 生成结果 */}
       {result && (
         <div className="mt-8 bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8">
           <div className="flex justify-between items-center mb-5">
@@ -189,9 +190,9 @@ export default function GeneratorForm() {
           </div>
 
           <div className="space-y-3 mb-5">
-            <p className="text-sm text-gray-500">吸睛标题（点击切换预览）</p >
+            <p className="text-sm text-gray-500">吸睛标题</p >
             {result.titles?.map((title: string, i: number) => (
-              <div key={i} className="bg-gray-50 hover:bg-pink-50 p-3 rounded-xl cursor-pointer transition">
+              <div key={i} className="bg-gray-50 hover:bg-pink-50 p-3 rounded-xl transition">
                 {i + 1}. {title}
               </div>
             ))}
