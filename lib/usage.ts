@@ -1,117 +1,91 @@
-const FREE_DAILY_LIMIT = 1;
-const VIP_DAILY_LIMIT = 10;
-const AUTH_CODE = "VIP30";
-const AUTH_DAYS = 30;
+const FREE_LIMIT = 1;
+const VIP_LIMIT = 10;
+const VIP_CODE = "VIP0518";
+const VIP_DAYS = 30;
+
+type UsageData = {
+  date: string;
+  count: number;
+  isVip: boolean;
+  vipExpire: string | null;
+};
+
+function getToday() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function load(): UsageData {
+  if (typeof window === "undefined") {
+    return { date: getToday(), count: 0, isVip: false, vipExpire: null };
+  }
+
+  try {
+    const raw = localStorage.getItem("xhs_usage");
+    if (!raw) {
+      return { date: getToday(), count: 0, isVip: false, vipExpire: null };
+    }
+
+    const data: UsageData = JSON.parse(raw);
+
+    // 检查 VIP 是否过期
+    if (data.isVip && data.vipExpire) {
+      if (new Date(data.vipExpire) < new Date()) {
+        data.isVip = false;
+        data.vipExpire = null;
+      }
+    }
+
+    // 跨天重置次数
+    if (data.date !== getToday()) {
+      data.date = getToday();
+      data.count = 0;
+    }
+
+    return data;
+  } catch {
+    return { date: getToday(), count: 0, isVip: false, vipExpire: null };
+  }
+}
+
+function save(data: UsageData) {
+  if (typeof window === "undefined") return;
+  localStorage.setItem("xhs_usage", JSON.stringify(data));
+}
 
 export function getUsage() {
-  if (typeof window === "undefined") {
-    return { count: 0, isVip: false };
-  }
-
-  const vipExpire = localStorage.getItem("vip_expire");
-  if (vipExpire) {
-    const expireTime = Number(vipExpire);
-    if (Date.now() < expireTime) {
-      return { count: 0, isVip: true };
-    } else {
-      localStorage.removeItem("vip_expire");
-      localStorage.removeItem("vip_usage_data");
-    }
-  }
-
-  const today = new Date().toDateString();
-  const data = localStorage.getItem("usage_data");
-
-  if (data) {
-    try {
-      const parsed = JSON.parse(data);
-      if (parsed.date === today) {
-        return { count: parsed.count || 0, isVip: false };
-      }
-    } catch (e) {}
-  }
-
-  return { count: 0, isVip: false };
-}
-
-export function canGenerate() {
-  const usage = getUsage();
-
-  if (usage.isVip) {
-    const today = new Date().toDateString();
-    const data = localStorage.getItem("vip_usage_data");
-    if (data) {
-      try {
-        const parsed = JSON.parse(data);
-        if (parsed.date === today) {
-          return (parsed.count || 0) < VIP_DAILY_LIMIT;
-        }
-      } catch (e) {}
-    }
-    return true;
-  }
-
-  return usage.count < FREE_DAILY_LIMIT;
-}
-
-export function increaseUsage() {
-  if (typeof window === "undefined") return;
-
-  const usage = getUsage();
-  const today = new Date().toDateString();
-
-  if (usage.isVip) {
-    const data = localStorage.getItem("vip_usage_data");
-    let count = 1;
-    if (data) {
-      try {
-        const parsed = JSON.parse(data);
-        if (parsed.date === today) {
-          count = (parsed.count || 0) + 1;
-        }
-      } catch (e) {}
-    }
-    localStorage.setItem("vip_usage_data", JSON.stringify({ date: today, count }));
-  } else {
-    const data = localStorage.getItem("usage_data");
-    let count = 1;
-    if (data) {
-      try {
-        const parsed = JSON.parse(data);
-        if (parsed.date === today) {
-          count = (parsed.count || 0) + 1;
-        }
-      } catch (e) {}
-    }
-    localStorage.setItem("usage_data", JSON.stringify({ date: today, count }));
-  }
-}
-
-export function activateVip(code: string) {
-  if (code.trim().toUpperCase() === AUTH_CODE) {
-    const expireTime = Date.now() + AUTH_DAYS * 24 * 60 * 60 * 1000;
-    localStorage.setItem("vip_expire", String(expireTime));
-    return true;
-  }
-  return false;
+  return load();
 }
 
 export function getRemaining() {
-  const usage = getUsage();
+  const data = load();
+  const limit = data.isVip ? VIP_LIMIT : FREE_LIMIT;
+  return Math.max(0, limit - data.count);
+}
 
-  if (usage.isVip) {
-    const today = new Date().toDateString();
-    const data = localStorage.getItem("vip_usage_data");
-    if (data) {
-      try {
-        const parsed = JSON.parse(data);
-        if (parsed.date === today) {
-          return Math.max(0, VIP_DAILY_LIMIT - (parsed.count || 0));
-        }
-      } catch (e) {}
-    }
-    return VIP_DAILY_LIMIT;
+export function canGenerate() {
+  return getRemaining() > 0;
+}
+
+export function increaseUsage() {
+  const data = load();
+  data.count += 1;
+  save(data);
+}
+
+export function activateVip(code: string) {
+  if (code.trim().toUpperCase() !== VIP_CODE) {
+    return false;
   }
 
-  return Math.max(0, FREE_DAILY_LIMIT - usage.count);
+  const data = load();
+  const expire = new Date();
+  expire.setDate(expire.getDate() + VIP_DAYS);
+
+  data.isVip = true;
+  data.vipExpire = expire.toISOString();
+  data.count = 0; // 激活当天重置次数
+  data.date = getToday();
+  save(data);
+
+  return true;
 }
