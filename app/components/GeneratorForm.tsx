@@ -71,10 +71,9 @@ export default function GeneratorForm() {
         throw new Error(data.error || "生成失败，请稍后重试");
       }
 
-      // 正确取数据
       increaseUsage();
       setRemaining(getRemaining());
-      setResult(data.data); // 这里是关键
+      setResult(data.data);
     } catch (err: any) {
       setError(err.message || "生成失败，请稍后重试");
     } finally {
