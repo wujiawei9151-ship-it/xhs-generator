@@ -72,15 +72,13 @@ export default function GeneratorForm() {
       });
 
       const data = await res.json();
+if (!res.ok || !data.success) {
+  throw new Error(data.error || "生成失败，请稍后重试");
+}
 
-      if (!res.ok) {
-        throw new Error(data.error || "生成失败，请稍后重试");
-      }
-
-      // 增加使用次数
-      increaseUsage();
-      setRemaining(getRemaining());
-      setResult(data);
+increaseUsage();
+setRemaining(getRemaining());
+setResult(data.data);   // 注意这里改成 data.data
     } catch (err: any) {
       setError(err.message || "生成失败，请稍后重试");
     } finally {
