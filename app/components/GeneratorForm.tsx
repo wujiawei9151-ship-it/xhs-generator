@@ -16,7 +16,6 @@ export default function GeneratorForm() {
   const [authCode, setAuthCode] = useState("");
   const [authMessage, setAuthMessage] = useState("");
 
-  // 初始化状态
   useEffect(() => {
     const usage = getUsage();
     setIsVip(usage.isVip);
@@ -28,7 +27,6 @@ export default function GeneratorForm() {
       setAuthMessage("请输入授权码");
       return;
     }
-
     if (activateVip(authCode)) {
       setAuthMessage("授权成功！已开通30天每日10次");
       setIsVip(true);
@@ -40,10 +38,8 @@ export default function GeneratorForm() {
   };
 
   const handleGenerate = async () => {
-    // 清空旧错误
     setError("");
 
-    // 严格检查产品名称
     if (!product.trim()) {
       setError("请填写产品名称或主题");
       return;
@@ -60,9 +56,7 @@ export default function GeneratorForm() {
     try {
       const res = await fetch("/api/generate", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           product: product.trim(),
           points: points.trim(),
@@ -72,13 +66,15 @@ export default function GeneratorForm() {
       });
 
       const data = await res.json();
-if (!res.ok || !data.success) {
-  throw new Error(data.error || "生成失败，请稍后重试");
-}
 
-increaseUsage();
-setRemaining(getRemaining());
-setResult(data.data);   // 注意这里改成 data.data
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || "生成失败，请稍后重试");
+      }
+
+      // 正确取数据
+      increaseUsage();
+      setRemaining(getRemaining());
+      setResult(data.data); // 这里是关键
     } catch (err: any) {
       setError(err.message || "生成失败，请稍后重试");
     } finally {
@@ -88,7 +84,6 @@ setResult(data.data);   // 注意这里改成 data.data
 
   return (
     <div className="max-w-2xl mx-auto px-4">
-      {/* 授权码区域 */}
       {!isVip && (
         <div className="mb-6 p-4 bg-pink-50 border border-pink-100 rounded-2xl">
           <p className="text-sm text-pink-700 mb-3 font-medium">
@@ -110,18 +105,13 @@ setResult(data.data);   // 注意这里改成 data.data
             </button>
           </div>
           {authMessage && (
-            <p
-              className={`text-sm mt-2 ${
-                authMessage.includes("成功") ? "text-green-600" : "text-red-500"
-              }`}
-            >
+            <p className={`text-sm mt-2 ${authMessage.includes("成功") ? "text-green-600" : "text-red-500"}`}>
               {authMessage}
             </p >
           )}
         </div>
       )}
 
-      {/* 主表单 */}
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-bold text-gray-800">填写笔记信息</h2>
@@ -131,7 +121,6 @@ setResult(data.data);   // 注意这里改成 data.data
         </div>
 
         <div className="space-y-5">
-          {/* 产品名称 */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1.5">
               产品名称 / 主题 <span className="text-red-500">*</span>
@@ -145,13 +134,10 @@ setResult(data.data);   // 注意这里改成 data.data
             />
           </div>
 
-          {/* 核心卖点 */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1.5">
               核心卖点
-              <span className="text-gray-400 font-normal ml-1">
-                每行一个卖点，写得越具体生成效果越好
-              </span>
+              <span className="text-gray-400 font-normal ml-1">每行一个卖点，写得越具体生成效果越好</span>
             </label>
             <textarea
               value={points}
@@ -162,7 +148,6 @@ setResult(data.data);   // 注意这里改成 data.data
             />
           </div>
 
-          {/* 目标人群 */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1.5">
               目标人群
@@ -177,7 +162,6 @@ setResult(data.data);   // 注意这里改成 data.data
             />
           </div>
 
-          {/* 风格选择 */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">选择风格</label>
             <div className="flex flex-wrap gap-2">
@@ -198,12 +182,10 @@ setResult(data.data);   // 注意这里改成 data.data
             </div>
           </div>
 
-          {/* 错误提示 */}
           {error && (
             <p className="text-red-500 text-sm bg-red-50 px-4 py-2 rounded-lg">{error}</p >
           )}
 
-          {/* 生成按钮 */}
           <button
             onClick={handleGenerate}
             disabled={loading}
@@ -221,7 +203,7 @@ setResult(data.data);   // 注意这里改成 data.data
             <h3 className="text-lg font-bold text-gray-800">✨ 生成结果</h3>
             <button
               onClick={() => {
-                const text = (result.titles?.[0] || "") + "\n\n" + (result.content || "");
+                const text = (result.titles?.[0] || "") + "\n\n" + (result.body || "");
                 navigator.clipboard.writeText(text);
                 alert("已复制全部内容");
               }}
@@ -235,19 +217,16 @@ setResult(data.data);   // 注意这里改成 data.data
             <div className="space-y-3 mb-5">
               <p className="text-sm text-gray-500">吸睛标题</p >
               {result.titles.map((title: string, i: number) => (
-                <div
-                  key={i}
-                  className="bg-gray-50 hover:bg-pink-50 p-3 rounded-xl transition"
-                >
+                <div key={i} className="bg-gray-50 hover:bg-pink-50 p-3 rounded-xl transition">
                   {i + 1}. {title}
                 </div>
               ))}
             </div>
           )}
 
-          {result.content && (
+          {result.body && (
             <div className="bg-pink-50 p-5 rounded-xl whitespace-pre-wrap leading-relaxed text-gray-800">
-              {result.content}
+              {result.body}
             </div>
           )}
         </div>
