@@ -77,11 +77,11 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const body = (await req.json()) as Partial<GenerateRequest>;
-    const topic = (body.topic || "").trim();
-    const sellingPoints = (body.sellingPoints || "").trim();
-    const audience = (body.audience || "").trim();
-    const style = body.style || "种草";
+    const body = (await req.json()) as any;
+const topic = (body.product || body.topic || "").trim();
+const sellingPoints = (body.points || body.sellingPoints || "").trim();
+const audience = (body.audience || "").trim();
+const style = body.style || "种草";
 
     if (!topic) {
       return NextResponse.json(
