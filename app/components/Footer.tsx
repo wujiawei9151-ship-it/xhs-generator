@@ -1,19 +1,21 @@
 export default function Footer() {
   return (
-    <footer className="mt-14 px-4 pb-10">
-      <div className="mx-auto max-w-2xl rounded-xhs border border-xhs-coral/30 bg-gradient-to-r from-xhs-rose to-orange-50 p-5 text-center shadow-xhs-sm sm:p-6">
-        <p className="font-display text-base font-bold text-xhs-ink sm:text-lg">
-          🔓 想不限次数生成？
-        </p>
-        <p className="mt-1.5 text-sm text-xhs-plum">
-          加微信 <span className="font-semibold text-xhs-red">aaa1063150363</span>{" "}
-          咨询无限次生成 / 批量出稿方案，备注「文案生成器」优先通过～
-        </p>
+    <footer className="mt-6 px-4 pb-10">
+      <div className="mx-auto max-w-2xl rounded-2xl border border-pink-100 bg-pink-50 p-5 text-center">
+        <p className="font-bold text-gray-800 text-base">
+          想每天生成 10 次？
+        </p >
+        <p className="mt-2 text-sm leading-relaxed text-gray-600">
+          加微信{" "}
+          <span className="select-all font-semibold text-pink-600">
+            cjj20241213
+          </span>{" "}
+          获取授权码，备注「文案生成器」优先通过
+        </p >
+        <p className="mt-1.5 text-xs text-gray-400">
+          授权码有效期 30 天 · 每日 10 次免费生成
+        </p >
       </div>
-
-      <p className="mt-6 text-center text-xs text-xhs-plum/50">
-        内容由 AI 生成，仅供创作参考，发布前请自行核实信息准确性。
-      </p>
     </footer>
   );
 }
